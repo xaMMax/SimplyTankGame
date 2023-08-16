@@ -18,17 +18,15 @@ class Player(pygame.sprite.Sprite, Settings):
 
         # Sprite init
         self.current_sprite = 0
-        self.image_list = []
-        self.image_list.append(pygame.transform.scale(
-            pygame.image.load('player_tank/ArmyTank.png').convert_alpha(), (200, 70)))
-        self.image_list.append(pygame.transform.scale(
-            pygame.image.load('player_tank/ArmyTank1.png').convert_alpha(), (200, 70)))
-        self.image_list.append(pygame.transform.scale(
-            pygame.image.load('player_tank/ArmyTank2.png').convert_alpha(), (200, 70)))
-        self.image_list.append(pygame.transform.scale(
-            pygame.image.load('player_tank/ArmyTank3.png').convert_alpha(), (200, 70)))
-        self.image = (self.image_list[self.current_sprite]).convert_alpha()
-        self.player_size = (200, 70)
+        self.image_sprite_list = []
+        self.image_sprite_list.append(pygame.image.load('player_tank/ArmyTank.png'))
+        self.image_sprite_list.append(pygame.image.load('player_tank/ArmyTank1.png'))
+        self.image_sprite_list.append(pygame.image.load('player_tank/ArmyTank2.png'))
+        self.image_sprite_list.append(pygame.image.load('player_tank/ArmyTank3.png'))
+
+        self.image = pygame.transform.scale((self.image_sprite_list[self.current_sprite]).convert_alpha(),
+                                            (int(self.screen_width / 10), int(self.screen_width / 10)))
+        self.player_size = self.image.get_size()
         self.rect = pygame.Rect(20, 450, *self.player_size)
 
         # Class specifications
@@ -59,23 +57,20 @@ class Player(pygame.sprite.Sprite, Settings):
         self.background = Background()
 
     def update(self):
+        self.picture_change()
         self.create_player()
         self.basic_health()
         self.hud(f' level {self.level}', self.rect.x, self.rect.y - 50)
-        if self.move_action:
-            if self.current_sprite >= len(self.image_list):
-                self.current_sprite = 0
-            self.image = (self.image_list[self.current_sprite]).convert_alpha()
-            self.current_sprite += 1
-            # self.move_action = False
 
     def fire(self, text='bullet'):
         if text == 'projectile':
-            return self.weapon(self.rect.right, self.rect.center[1] - 23, self.rect.center, text, self.projectile_speed)
+            return self.weapon(self.rect.right + (self.player_size[0] / 2), self.rect.top + self.player_size[0] / 10,
+                               self.rect.center, text, self.projectile_speed)
         elif text == 'rocket':
             return self.weapon(self.rect.center[0], self.rect.center[1] - 45, self.rect.center, text, self.rocket_speed)
         else:
-            return self.weapon(self.rect.right - 30, self.rect.center[1] - 10, self.rect.center, text, self.bullet_speed)
+            return self.weapon(self.rect.right + (self.player_size[0] / 2), self.rect.top + self.player_size[0] / 5,
+                               self.rect.center, text, self.bullet_speed)
 
     def player_power_up(self):
         if self.player_speed <= 8:
@@ -91,7 +86,7 @@ class Player(pygame.sprite.Sprite, Settings):
         self.projectile_speed += 2
 
     def move(self, left=False, right=False, top=False, down=False):
-        if top and self.rect.bottom - 70 > self.screen.get_height() / 2:
+        if top and self.rect.top > self.screen.get_height() / 2:
             self.rect.y -= self.player_speed
         if down:
             self.rect.y += self.player_speed
@@ -125,6 +120,12 @@ class Player(pygame.sprite.Sprite, Settings):
 
     def create_player(self):
         self.screen.blit(self.image, self.rect)
+
+    def picture_change(self):
+        if self.current_sprite >= len(self.image_sprite_list):
+            self.current_sprite = 0
+        self.image = (self.image_sprite_list[self.current_sprite]).convert_alpha()
+        self.current_sprite += 1
 
     def dead(self):
         self.kill()

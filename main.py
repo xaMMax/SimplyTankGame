@@ -55,7 +55,7 @@ class MainLogic(Settings):
     async def main(self):
         while self.running:
             self._update_screen()
-            self.fps.tick(60)
+            self.fps.tick(50)
             self._check_events()
             self.hit()
             self.player_moving_events()
@@ -103,9 +103,12 @@ class MainLogic(Settings):
                 print('out of bullets')
 
     def fire_animate(self):
-        self.screen.blit(self.background.fire_fire, (self.player.rect.right, self.player.rect.center[1] - 80))
-        self.screen.blit(self.background.fire_fire1, (self.player.rect.right - 20, self.player.rect.center[1] - 60))
-        self.screen.blit(self.background.fire_fire2, (self.player.rect.right - 20, self.player.rect.center[1] - 50))
+        self.screen.blit(self.background.fire_fire, (self.player.rect.right + (self.player.player_size[0] / 2),
+                                                     self.player.rect.top - self.player.player_size[1] / 3))
+        # self.screen.blit(self.background.fire_fire1, (self.player.rect.right + self.player.player_size[0],
+        #                                              self.player.rect.top + self.player.player_size[0] / 10))
+        # self.screen.blit(self.background.fire_fire2, (self.player.rect.right + self.player.player_size[0],
+        #                                              self.player.rect.top + self.player.player_size[0] / 10))
         self.fire_event = False
 
     def player_moving_events(self):
