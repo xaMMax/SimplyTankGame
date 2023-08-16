@@ -1,4 +1,5 @@
 import sys
+import asyncio
 import random
 import pygame
 from pygame import K_s, K_d, K_w, K_a, K_q, K_SPACE, K_r
@@ -51,13 +52,14 @@ class MainLogic(Settings):
         self.smoke = pygame.transform.scale(pygame.image.load('images/smoke.png').convert_alpha(),
                                             (30, 30))
 
-    def run_game(self):
+    async def main(self):
         while self.running:
             self._update_screen()
             self.fps.tick(60)
             self._check_events()
             self.hit()
             self.player_moving_events()
+            await asyncio.sleep(0)
 
     def _check_events(self):
         self.keys = pygame.key.get_pressed()
@@ -244,9 +246,9 @@ class MainLogic(Settings):
         self.game_hud(f'Projectiles left {self.player.projectile_amount}', 10, 10)
         self.game_hud(f'Rockets left {self.player.rocket_amount}', 10, 35)
         self.game_hud(f'Bullets left {self.player.bullet_amount}', 10, 60)
-        self.game_hud(f'weapon speed {int(self.player.bullet_speed)}\n'
-                      f'{self.player.rocket_speed}\n'
-                      f'{self.player.projectile_speed}', 10, 80)
+        # self.game_hud(f'weapon speed {int(self.player.bullet_speed)}\n'
+        #               f'{self.player.rocket_speed}\n'
+        #               f'{self.player.projectile_speed}', 10, 80)
         self.game_hud(f'Next level Up after {self.player.level_increase} score', (self.screen.get_width() / 2) - 70, 45)
         self.game_hud(f'Current health {self.player.player_current_health}', (self.screen.get_width() / 2) - 50, 3)
         if self.fire_event:
@@ -258,4 +260,4 @@ class MainLogic(Settings):
 
 if __name__ == '__main__':
     banderivets = MainLogic()
-    banderivets.run_game()
+    asyncio.run(banderivets.main())

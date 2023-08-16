@@ -46,9 +46,7 @@ class Enemy(pygame.sprite.Sprite, Settings):
             # self.hit = False
         self.rect.x -= self.enemy_speed
         self.basic_health(health_ratio=self.enemy_current_health)
-        self.hud(f' health {self.enemy_current_health}'
-                 f' speed {self.enemy_speed}',
-                 self.rect.x, self.rect.y - 45)
+        self.hud(f' health {self.enemy_current_health}', self.rect.x, self.rect.y - 45)
         self.hit = False
 
         return

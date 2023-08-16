@@ -61,8 +61,7 @@ class Player(pygame.sprite.Sprite, Settings):
     def update(self):
         self.create_player()
         self.basic_health()
-        self.hud(f' level {self.level}'
-                 f' speed{int(self.player_speed)}', self.rect.x, self.rect.y - 50)
+        self.hud(f' level {self.level}', self.rect.x, self.rect.y - 50)
         if self.move_action:
             if self.current_sprite >= len(self.image_list):
                 self.current_sprite = 0
