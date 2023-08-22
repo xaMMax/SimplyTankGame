@@ -17,8 +17,9 @@ class MainLogic(Settings):
         self.time = pygame.time
         self.fps = pygame.time.Clock()
         super().__init__()
-        self.screen = pygame.display.set_mode([self.screen_width, self.screen_height])
         Settings.__init__(self)
+
+        self.screen = pygame.display.set_mode([self.screen_width, self.screen_height])
         self.create_bonus_event = pygame.USEREVENT + 2
         self.bonus_group = pygame.sprite.Group()
         pygame.time.set_timer(self.create_bonus_event, random.randint(4000, 8000))
@@ -112,7 +113,7 @@ class MainLogic(Settings):
         self.fire_event = False
 
     def player_moving_events(self):
-        if self.keys[K_s] and self.player.rect.bottom < self.screen.get_height():
+        if self.keys[K_s] and self.player.rect.centery < self.screen_height:
             self.player.move(down=True)
         if self.keys[K_w] and self.player.rect.top > 0:
             self.player.move(top=True)
@@ -173,11 +174,11 @@ class MainLogic(Settings):
                 if random_bonus_number == 0:
                     self.player.player_current_health += 20
                 elif random_bonus_number == 1:
-                    self.player.rocket_amount += 5
+                    self.player.rocket_amount += 15
                 elif random_bonus_number == 2:
-                    self.player.projectile_amount += 5
+                    self.player.projectile_amount += 20
                 elif random_bonus_number == 3:
-                    self.player.bullet_amount += 5
+                    self.player.bullet_amount += 30
                 bonus.kill()
 
     def power_up(self):

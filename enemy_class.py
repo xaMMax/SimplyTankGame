@@ -31,7 +31,7 @@ class Enemy(pygame.sprite.Sprite, Settings):
                                            (int(self.screen_width/10), int(self.screen_width/10)))
         self.enemy_size = self.image.get_size()
         self.rect = pygame.Rect(self.screen_width + int(self.screen_width/10),
-                                random.randint(int(self.screen_height/2), int(self.screen_height-100)), *self.enemy_size)
+                                random.randint(int(self.screen_height/2), int(self.screen_height-50)), *self.enemy_size)
         self.health_line_length = 0.5
         self.hit = False
         self.kill_self = False

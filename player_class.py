@@ -31,7 +31,6 @@ class Player(pygame.sprite.Sprite, Settings):
 
         # Class specifications
         self.player_speed = 1
-
         self.player_current_health = 100
         self.player_max_health = 500
 
