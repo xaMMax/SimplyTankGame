@@ -25,8 +25,8 @@ class MainLogic(Settings):
         pygame.time.set_timer(self.create_bonus_event, random.randint(4000, 8000))
 
         self.create_enemy_event = pygame.USEREVENT + 1
-        self.random_resp_number_start = 1000
-        self.random_resp_number_end = 1700
+        self.random_resp_number_start = 800
+        self.random_resp_number_end = 2500
         pygame.time.set_timer(self.create_enemy_event,
                               random.randint(self.random_resp_number_start,
                                              self.random_resp_number_end))
@@ -51,6 +51,7 @@ class MainLogic(Settings):
         self.pause = False
         self.player_current_speed = 0
         self.enemy_current_speed = 0
+        self.statement = {self.pause: False}
         # self.ticks = pygame.time.get_ticks()
 
         self.smoke = pygame.transform.scale(pygame.image.load('images/smoke.png').convert_alpha(),
@@ -72,37 +73,42 @@ class MainLogic(Settings):
                 sys.exit()
             if event.type == pygame.KEYDOWN and event.key == K_p:
                 print("game at pause")
-                self.pause = True
+                self.statement[self.pause] = True
                 self.player_current_speed = self.player.player_speed
                 self.enemy_current_speed = self.enemy_speed
                 self.player.player_speed = 0
                 self.enemy_speed = 0
-            if self.pause and event.type == pygame.KEYDOWN and event.key == K_o:
+                for enemy in self.enemy_group:
+                    enemy.kill()
+                for bonus in self.bonus_group:
+                    bonus.kill()
+            if self.statement[self.pause] and event.type == pygame.KEYDOWN and event.key == K_o:
                 print("game run")
 
-                self.pause = False
+                self.statement[self.pause] = False
                 self.player.player_speed = self.player_current_speed
                 self.enemy_speed = self.enemy_current_speed
 
             self.create_enemy(event)
             self.create_bonus(event)
             self.fire(event)
-            
-	if self.pause:
-        print("Game at pause")
-    else:
-        def create_enemy(self, event):
+
+
+    def create_enemy(self, event):
+        if self.statement[self.pause]:
+            print("Game on pause")
+        else:
             if event.type == self.create_enemy_event:
                 enemy = Enemy(self.screen, self.enemy_speed, self.enemy_current_health, self.enemy_max_health)
                 self.enemy_group.add(enemy)
-    
-        def create_bonus(self, event):
-            if self.pause:
-                print("game on pause")
-            else:
-                if event.type == self.create_bonus_event:
-                    bonus = Bonus()
-                    self.bonus_group.add(bonus)
+        
+    def create_bonus(self, event):
+        if self.statement[self.pause]:
+            print("Game on pause")
+        else:
+            if event.type == self.create_bonus_event:
+                bonus = Bonus()
+                self.bonus_group.add(bonus)
 
     def fire(self, event):
         if event.type == pygame.KEYDOWN and event.key == K_SPACE:
@@ -224,7 +230,7 @@ class MainLogic(Settings):
         return self.screen.blit(self.font.render(str(text), True, 'black'), (x, y))
 
     def background_func(self):
-        if self.pause:
+        if self.statement[self.pause]:
             print("game on pause")
             self.screen.blit(self.background.bg_sun, (50, 50))
             self.background.bg_cloud_far_X1 -= 0
