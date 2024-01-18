@@ -87,19 +87,21 @@ class MainLogic(Settings):
             self.create_enemy(event)
             self.create_bonus(event)
             self.fire(event)
-
-    def create_enemy(self, event):
-        if event.type == self.create_enemy_event:
-            enemy = Enemy(self.screen, self.enemy_speed, self.enemy_current_health, self.enemy_max_health)
-            self.enemy_group.add(enemy)
-
-    def create_bonus(self, event):
-        if self.pause:
-            print("game on pause")
-        else:
-            if event.type == self.create_bonus_event:
-                bonus = Bonus()
-                self.bonus_group.add(bonus)
+     if self.pause:
+         print("Game at pause")
+     else:
+        def create_enemy(self, event):
+            if event.type == self.create_enemy_event:
+                enemy = Enemy(self.screen, self.enemy_speed, self.enemy_current_health, self.enemy_max_health)
+                self.enemy_group.add(enemy)
+    
+        def create_bonus(self, event):
+            if self.pause:
+                print("game on pause")
+            else:
+                if event.type == self.create_bonus_event:
+                    bonus = Bonus()
+                    self.bonus_group.add(bonus)
 
     def fire(self, event):
         if event.type == pygame.KEYDOWN and event.key == K_SPACE:
@@ -211,8 +213,9 @@ class MainLogic(Settings):
     def enemy_power_up(self):
         # self.level += 1
         if self.enemy_speed <= 8:
-            self.random_resp_number_start += 100
-            self.random_resp_number_end -= 100
+            if self.random_resp_number_start <= 1400 and self.random_resp_number_end <= 1500:
+                self.random_resp_number_start += 100
+                self.random_resp_number_end -= 100
         self.enemy_speed += 0.7
         self.enemy_current_health += 20
 
