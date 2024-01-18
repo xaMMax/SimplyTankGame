@@ -34,7 +34,7 @@ class MainLogic(Settings):
 
         self.enemy_speed = 1
         self.enemy_current_health = 100
-        self.enemy_max_health = 500
+        self.enemy_max_health = 1000
 
         self.weapon_group = pygame.sprite.Group()
         self.enemy_group = pygame.sprite.Group()
@@ -56,7 +56,7 @@ class MainLogic(Settings):
     async def main(self):
         while self.running:
             self._update_screen()
-            self.fps.tick(50)
+            self.fps.tick(60)
             self._check_events()
             self.hit()
             self.player_moving_events()
@@ -193,8 +193,8 @@ class MainLogic(Settings):
         if self.enemy_speed <= 8:
             self.random_resp_number_start += 10
             self.random_resp_number_end -= 10
-        self.enemy_speed += 1
-        self.enemy_current_health += 20
+        self.enemy_speed += 0.5
+        self.enemy_current_health += 10
 
     def game_hud(self, text=None, x=None, y=None):
         return self.screen.blit(self.font.render(str(text), True, 'black'), (x, y))
@@ -246,15 +246,15 @@ class MainLogic(Settings):
         self.bonus_group.update()
 
         self.game_hud(f'FPS: {int(self.fps.get_fps())}', self.screen.get_width() - 200, 10)
-        self.game_hud(f'your score: {self.player.score}', self.screen.get_width() - 200, 35)
-        self.game_hud(f'Projectiles left {self.player.projectile_amount}', 10, 10)
-        self.game_hud(f'Rockets left {self.player.rocket_amount}', 10, 35)
-        self.game_hud(f'Bullets left {self.player.bullet_amount}', 10, 60)
+        self.game_hud(f'Ваш рахунок: {self.player.score}', self.screen.get_width() - 200, 35)
+        self.game_hud(f'Боєзапас снарядів {self.player.projectile_amount} "Пробіл"', 10, 10)
+        self.game_hud(f'Боєзапас ракет {self.player.rocket_amount} "R"', 10, 35)
+        self.game_hud(f'Боєзапас куль {self.player.bullet_amount} "Q"', 10, 60)
         # self.game_hud(f'weapon speed {int(self.player.bullet_speed)}\n'
         #               f'{self.player.rocket_speed}\n'
         #               f'{self.player.projectile_speed}', 10, 80)
-        self.game_hud(f'Next level Up after {self.player.level_increase} score', (self.screen.get_width() / 2) - 70, 45)
-        self.game_hud(f'Current health {self.player.player_current_health}', (self.screen.get_width() / 2) - 50, 3)
+        self.game_hud(f'Наступний рівень після {self.player.level_increase}рахунку', (self.screen.get_width() / 2) - 70, 45)
+        self.game_hud(f'Здоров"я {self.player.player_current_health}', (self.screen.get_width() / 2) - 50, 3)
         if self.fire_event:
             self.fire_animate()
         self.get_bonus()

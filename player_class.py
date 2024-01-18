@@ -42,14 +42,14 @@ class Player(pygame.sprite.Sprite, Settings):
         self.projectile_damage = 70
         self.rocket_damage = 200
 
-        self.bullet_amount = 50
-        self.projectile_amount = 30
-        self.rocket_amount = 10
+        self.bullet_amount = 2000
+        self.projectile_amount = 40
+        self.rocket_amount = 15
 
         self.score = 0
         self.level = 1
         self.start_level = 1
-        self.level_increase = 10
+        self.level_increase = 5
 
         self.health_ratio = self.player_current_health * self.health_line_length
 
@@ -59,7 +59,7 @@ class Player(pygame.sprite.Sprite, Settings):
         self.picture_change()
         self.create_player()
         self.basic_health()
-        self.hud(f' level {self.level}', self.rect.x, self.rect.y - 50)
+        self.hud(f' рівень {self.level} швидкість {self.player_speed}', self.rect.x, self.rect.y - 50)
 
     def fire(self, text='bullet'):
         if text == 'projectile':
@@ -83,6 +83,7 @@ class Player(pygame.sprite.Sprite, Settings):
         self.bullet_speed += 2
         self.rocket_speed += 2
         self.projectile_speed += 2
+        self.level += 1
 
     def move(self, left=False, right=False, top=False, down=False):
         if top and self.rect.top > self.screen.get_height() / 2:
