@@ -87,9 +87,10 @@ class MainLogic(Settings):
             self.create_enemy(event)
             self.create_bonus(event)
             self.fire(event)
-     if self.pause:
-         print("Game at pause")
-     else:
+            
+    if self.pause:
+        print("Game at pause")
+    else:
         def create_enemy(self, event):
             if event.type == self.create_enemy_event:
                 enemy = Enemy(self.screen, self.enemy_speed, self.enemy_current_health, self.enemy_max_health)
