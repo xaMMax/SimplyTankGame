@@ -3,12 +3,12 @@ Download game zip archive from https://github.com/xaMMax/SimplyTankGame
 Unpack it.
 Next create virtual environment in unpacked folder
 cmd: python -m venv "/path/to/new/virtual/environment"
-Next activate venv
-cmd: C:\> <venv>\Scripts\activate.bat
+Next activate venv go to Scripts and find activate.bat
+Back to Game folder
 Update pip
 cmd: python -m pip install --upgrade pip
 Install requirements
-cmd: pip install -r requirements.txt
+cmd: python pip install -r requirements.txt
 Start game with
 cmd: python main.py
 
