@@ -88,7 +88,7 @@ class MainLogic(Settings):
             self.create_bonus(event)
             self.fire(event)
             
-    if self.pause:
+	if self.pause:
         print("Game at pause")
     else:
         def create_enemy(self, event):
