@@ -211,8 +211,8 @@ class MainLogic(Settings):
     def enemy_power_up(self):
         # self.level += 1
         if self.enemy_speed <= 8:
-            self.random_resp_number_start += 10
-            self.random_resp_number_end -= 10
+            self.random_resp_number_start += 100
+            self.random_resp_number_end -= 100
         self.enemy_speed += 0.5
         self.enemy_current_health += 10
 
