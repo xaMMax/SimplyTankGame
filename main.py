@@ -213,8 +213,8 @@ class MainLogic(Settings):
         if self.enemy_speed <= 8:
             self.random_resp_number_start += 100
             self.random_resp_number_end -= 100
-        self.enemy_speed += 0.5
-        self.enemy_current_health += 10
+        self.enemy_speed += 0.7
+        self.enemy_current_health += 20
 
     def game_hud(self, text=None, x=None, y=None):
         return self.screen.blit(self.font.render(str(text), True, 'black'), (x, y))
