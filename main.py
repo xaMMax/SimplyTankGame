@@ -2,7 +2,7 @@ import sys
 import asyncio
 import random
 import pygame
-from pygame import K_s, K_d, K_w, K_a, K_q, K_SPACE, K_r
+from pygame import K_s, K_d, K_w, K_a, K_q, K_SPACE, K_r, K_p, K_o
 from enemy_class import Enemy
 from player_class import Player
 from settins import Settings
@@ -48,6 +48,9 @@ class MainLogic(Settings):
         self.fire_event = False
         self.animation_duration = 1000
         self.animation_start = 0
+        self.pause = False
+        self.player_current_speed = 0
+        self.enemy_current_speed = 0
         # self.ticks = pygame.time.get_ticks()
 
         self.smoke = pygame.transform.scale(pygame.image.load('images/smoke.png').convert_alpha(),
@@ -67,6 +70,20 @@ class MainLogic(Settings):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
+            if event.type == pygame.KEYDOWN and event.key == K_p:
+                print("game at pause")
+                self.pause = True
+                self.player_current_speed = self.player.player_speed
+                self.enemy_current_speed = self.enemy_speed
+                self.player.player_speed = 0
+                self.enemy_speed = 0
+            if self.pause and event.type == pygame.KEYDOWN and event.key == K_o:
+                print("game run")
+
+                self.pause = False
+                self.player.player_speed = self.player_current_speed
+                self.enemy_speed = self.enemy_current_speed
+
             self.create_enemy(event)
             self.create_bonus(event)
             self.fire(event)
@@ -77,9 +94,12 @@ class MainLogic(Settings):
             self.enemy_group.add(enemy)
 
     def create_bonus(self, event):
-        if event.type == self.create_bonus_event:
-            bonus = Bonus()
-            self.bonus_group.add(bonus)
+        if self.pause:
+            print("game on pause")
+        else:
+            if event.type == self.create_bonus_event:
+                bonus = Bonus()
+                self.bonus_group.add(bonus)
 
     def fire(self, event):
         if event.type == pygame.KEYDOWN and event.key == K_SPACE:
@@ -172,19 +192,19 @@ class MainLogic(Settings):
         for bonus in self.bonus_group:
             if self.player.rect.colliderect(bonus.rect):
                 if random_bonus_number == 0:
-                    self.player.player_current_health += 20
+                    self.player.player_current_health += random.randint(10, 45)
                 elif random_bonus_number == 1:
-                    self.player.rocket_amount += 15
+                    self.player.rocket_amount += random.randint(5, 15)
                 elif random_bonus_number == 2:
-                    self.player.projectile_amount += 20
+                    self.player.projectile_amount += random.randint(15, 25)
                 elif random_bonus_number == 3:
-                    self.player.bullet_amount += 30
+                    self.player.bullet_amount += random.randint(100, 170)
                 bonus.kill()
 
     def power_up(self):
         if self.player.score == self.player.level_increase:
             self.player.score += 1
-            self.player.level_increase += int(self.player.score * 3)
+            self.player.level_increase += int((self.player.score//2) * 3)
             self.player.player_power_up()
             self.enemy_power_up()
 
@@ -200,34 +220,65 @@ class MainLogic(Settings):
         return self.screen.blit(self.font.render(str(text), True, 'black'), (x, y))
 
     def background_func(self):
-        self.screen.blit(self.background.bg_sun, (50, 50))
-        self.background.bg_cloud_far_X1 -= self.background.bg_cloud_far_move
-        self.background.bg_cloud_far_X2 -= self.background.bg_cloud_far_move
-        if self.background.bg_cloud_far_X1 < -self.background.bg_cloud_far_X2:
-            self.background.bg_cloud_far_X1 = self.background.bg_cloud_far_X2
-        if self.background.bg_cloud_far_X2 < -self.background.bg_cloud_far_X2:
-            self.background.bg_cloud_far_X1 = self.background.bg_cloud_far_X2
-        self.screen.blit(self.background.bg_cloud_far, (self.background.bg_cloud_far_X1, 130))
-        self.screen.blit(self.background.bg_cloud_far, (self.background.bg_cloud_far_X2, 130))
+        if self.pause:
+            print("game on pause")
+            self.screen.blit(self.background.bg_sun, (50, 50))
+            self.background.bg_cloud_far_X1 -= 0
+            self.background.bg_cloud_far_X2 -= 0
+            if self.background.bg_cloud_far_X1 < 0:
+                self.background.bg_cloud_far_X1 = 0
+            if self.background.bg_cloud_far_X2 < 0:
+                self.background.bg_cloud_far_X1 = 0
+            self.screen.blit(self.background.bg_cloud_far, (self.background.bg_cloud_far_X1, 130))
+            self.screen.blit(self.background.bg_cloud_far, (self.background.bg_cloud_far_X2, 130))
 
-        self.background.bg_cloud_near_X1 -= self.background.bg_cloud_near_move
-        self.background.bg_cloud_near_X2 -= self.background.bg_cloud_near_move
-        if self.background.bg_cloud_near_X1 < -self.background.bg_cloud_near_X2:
-            self.background.bg_cloud_near_X1 = self.background.bg_cloud_near_X2
-        if self.background.bg_cloud_near_X2 < -self.background.bg_cloud_near_X2:
-            self.background.bg_cloud_near_X1 = self.background.bg_cloud_near_X2
-        self.screen.blit(self.background.bg_cloud_near, (self.background.bg_cloud_near_X1, 130))
-        self.screen.blit(self.background.bg_cloud_near, (self.background.bg_cloud_near_X2, 130))
+            self.background.bg_cloud_near_X1 -= 0
+            self.background.bg_cloud_near_X2 -= 0
+            if self.background.bg_cloud_near_X1 < 0:
+                self.background.bg_cloud_near_X1 = 0
+            if self.background.bg_cloud_near_X2 < 0:
+                self.background.bg_cloud_near_X1 = 0
+            self.screen.blit(self.background.bg_cloud_near, (self.background.bg_cloud_near_X1, 130))
+            self.screen.blit(self.background.bg_cloud_near, (self.background.bg_cloud_near_X2, 130))
 
-        self.screen.blit(self.background.bg_ground, (self.background.bg_ground_X1, 260))
-        self.background.bg_tree_X1 -= self.background.bg_tree_move
-        self.background.bg_tree_X2 -= self.background.bg_tree_move
-        if self.background.bg_tree_X1 < -self.background.bg_tree.get_width():
-            self.background.bg_tree_X1 = self.background.bg_tree.get_width()
-        if self.background.bg_tree_X2 < -self.background.bg_tree.get_width():
-            self.background.bg_tree_X2 = self.background.bg_tree.get_width()
-        self.screen.blit(self.background.bg_tree, (self.background.bg_tree_X1, 130))
-        self.screen.blit(self.background.bg_tree, (self.background.bg_tree_X2, 130))
+            self.screen.blit(self.background.bg_ground, (self.background.bg_ground_X1, 260))
+            self.background.bg_tree_X1 -= 0
+            self.background.bg_tree_X2 -= 0
+            if self.background.bg_tree_X1 < 0:
+                self.background.bg_tree_X1 = 0
+            if self.background.bg_tree_X2 < 0:
+                self.background.bg_tree_X2 = 0
+            self.screen.blit(self.background.bg_tree, (self.background.bg_tree_X1, 130))
+            self.screen.blit(self.background.bg_tree, (self.background.bg_tree_X2, 130))
+        else:
+            self.screen.blit(self.background.bg_sun, (50, 50))
+            self.background.bg_cloud_far_X1 -= self.background.bg_cloud_far_move
+            self.background.bg_cloud_far_X2 -= self.background.bg_cloud_far_move
+            if self.background.bg_cloud_far_X1 < -self.background.bg_cloud_far_X2:
+                self.background.bg_cloud_far_X1 = self.background.bg_cloud_far_X2
+            if self.background.bg_cloud_far_X2 < -self.background.bg_cloud_far_X2:
+                self.background.bg_cloud_far_X1 = self.background.bg_cloud_far_X2
+            self.screen.blit(self.background.bg_cloud_far, (self.background.bg_cloud_far_X1, 130))
+            self.screen.blit(self.background.bg_cloud_far, (self.background.bg_cloud_far_X2, 130))
+
+            self.background.bg_cloud_near_X1 -= self.background.bg_cloud_near_move
+            self.background.bg_cloud_near_X2 -= self.background.bg_cloud_near_move
+            if self.background.bg_cloud_near_X1 < -self.background.bg_cloud_near_X2:
+                self.background.bg_cloud_near_X1 = self.background.bg_cloud_near_X2
+            if self.background.bg_cloud_near_X2 < -self.background.bg_cloud_near_X2:
+                self.background.bg_cloud_near_X1 = self.background.bg_cloud_near_X2
+            self.screen.blit(self.background.bg_cloud_near, (self.background.bg_cloud_near_X1, 130))
+            self.screen.blit(self.background.bg_cloud_near, (self.background.bg_cloud_near_X2, 130))
+
+            self.screen.blit(self.background.bg_ground, (self.background.bg_ground_X1, 260))
+            self.background.bg_tree_X1 -= self.background.bg_tree_move
+            self.background.bg_tree_X2 -= self.background.bg_tree_move
+            if self.background.bg_tree_X1 < -self.background.bg_tree.get_width():
+                self.background.bg_tree_X1 = self.background.bg_tree.get_width()
+            if self.background.bg_tree_X2 < -self.background.bg_tree.get_width():
+                self.background.bg_tree_X2 = self.background.bg_tree.get_width()
+            self.screen.blit(self.background.bg_tree, (self.background.bg_tree_X1, 130))
+            self.screen.blit(self.background.bg_tree, (self.background.bg_tree_X2, 130))
 
     def _update_screen(self):
         self.screen.fill(self.bg_color)

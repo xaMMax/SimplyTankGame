@@ -59,7 +59,7 @@ class Player(pygame.sprite.Sprite, Settings):
         self.picture_change()
         self.create_player()
         self.basic_health()
-        self.hud(f' рівень {self.level} швидкість {self.player_speed}', self.rect.x, self.rect.y - 50)
+        self.hud(f' рівень {self.level} швидкість {int(self.player_speed)}', self.rect.x, self.rect.y - 50)
 
     def fire(self, text='bullet'):
         if text == 'projectile':
