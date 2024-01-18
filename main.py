@@ -25,8 +25,8 @@ class MainLogic(Settings):
         pygame.time.set_timer(self.create_bonus_event, random.randint(4000, 8000))
 
         self.create_enemy_event = pygame.USEREVENT + 1
-        self.random_resp_number_start = 1500
-        self.random_resp_number_end = 2000
+        self.random_resp_number_start = 1000
+        self.random_resp_number_end = 1700
         pygame.time.set_timer(self.create_enemy_event,
                               random.randint(self.random_resp_number_start,
                                              self.random_resp_number_end))
