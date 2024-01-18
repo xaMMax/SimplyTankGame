@@ -39,7 +39,7 @@ class Player(pygame.sprite.Sprite, Settings):
         self.rocket_speed = 16
 
         self.bullet_damage = 30
-        self.projectile_damage = 70
+        self.projectile_damage = 50
         self.rocket_damage = 200
 
         self.bullet_amount = 2000
@@ -78,8 +78,8 @@ class Player(pygame.sprite.Sprite, Settings):
         self.rocket_amount = self.rocket_amount + int(self.score / 2)
         self.bullet_amount = self.bullet_amount + int(self.score / 2)
         self.bullet_damage += 5
-        self.projectile_damage += 20
-        self.rocket_damage += 30
+        self.projectile_damage += 10
+        self.rocket_damage += 20
         self.bullet_speed += 2
         self.rocket_speed += 2
         self.projectile_speed += 2
