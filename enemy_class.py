@@ -70,7 +70,7 @@ class Enemy(pygame.sprite.Sprite, Settings):
 
     def basic_health(self, health_ratio):
         return pygame.draw.rect(self.screen, 'red',
-                                (self.rect.x + 30, self.rect.y - 15, health_ratio, 5))
+                                (self.rect.x + 30, self.rect.y - 15, health_ratio, 5), border_radius=16)
 
     def hit_reaction(self):
         return self.screen.blit(self.boom, (self.rect.x - 30, self.rect.y - 50))

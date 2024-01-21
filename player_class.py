@@ -113,7 +113,7 @@ class Player(pygame.sprite.Sprite, Settings):
     def basic_health(self):
         return pygame.draw.rect(self.screen, 'red',
                                 (self.screen.get_width() / 2 - self.player_max_health / 2, 30,
-                                 self.player_current_health, 15))
+                                 self.player_current_health, 15), border_radius=16)
 
     def hud(self, text=None, x=None, y=None):
         return self.screen.blit(self.font.render(str(text), True, 'black'), (x, y))
