@@ -1,5 +1,7 @@
 import pygame
 import random
+
+from bullet_class import Weapon
 from settins import Settings
 
 
@@ -40,6 +42,8 @@ class Enemy(pygame.sprite.Sprite, Settings):
         self.enemy_speed = speed
         self.enemy_current_health = current_health
         self.enemy_max_health = max_health
+
+        self.weapon = Weapon
 
     def update(self):
         self.picture_change()
@@ -83,6 +87,11 @@ class Enemy(pygame.sprite.Sprite, Settings):
             self.current_sprite = 0
         self.image = (self.image_sprite_list[self.current_sprite]).convert_alpha()
         self.current_sprite += 1
+
+    def fire(self):
+        text = "enemy_projectile"
+        return self.weapon(self.rect.left - (self.enemy_size[0] / 2), self.rect.top + self.enemy_size[0] / 10,
+                               self.rect.center, text, (self.enemy_speed + 2))
 
     def dead(self):
         self.kill()

@@ -2,12 +2,17 @@ import sys
 import asyncio
 import random
 import pygame
-from pygame import K_s, K_d, K_w, K_a, K_q, K_SPACE, K_r, K_p, K_o
+from pygame import K_s, K_d, K_w, K_a, K_q, K_SPACE, K_r
 from enemy_class import Enemy
 from player_class import Player
 from settins import Settings
 from background_class import Background
 from bonus_class import Bonus
+
+
+async def start_game():
+    # if pygame.mouse.get_cursor():
+    await banderivets.main()
 
 
 class MainLogic(Settings):
@@ -20,16 +25,24 @@ class MainLogic(Settings):
         Settings.__init__(self)
 
         self.screen = pygame.display.set_mode([self.screen_width, self.screen_height])
-        self.create_bonus_event = pygame.USEREVENT + 2
         self.bonus_group = pygame.sprite.Group()
-        pygame.time.set_timer(self.create_bonus_event, random.randint(4000, 8000))
+
+        self.menu_rect = pygame.Rect(400, 100, 500, 300)
+        self.button_rect = pygame.Rect(550, 270, 200, 50)
+        self.mouse_pos = pygame.mouse.get_pos()
+        self.mouse_rect = pygame.Rect(self.mouse_pos[0], self.mouse_pos[1], 20, 20)
+        self.button_color = self.gray
+
+        self.event_increase = 2
 
         self.create_enemy_event = pygame.USEREVENT + 1
-        self.random_resp_number_start = 800
-        self.random_resp_number_end = 2500
+        self.create_bonus_event = pygame.USEREVENT + 2
+        pygame.time.set_timer(self.create_bonus_event, random.randint(4000, 8000))
+
+        self.random_resp_number_start = 100
+        self.random_resp_number_end = 1000
         pygame.time.set_timer(self.create_enemy_event,
-                              random.randint(self.random_resp_number_start,
-                                             self.random_resp_number_end))
+                              random.randint(400, 1000))
         self.player = Player(self.screen)
 
         self.enemy_speed = 1
@@ -38,9 +51,10 @@ class MainLogic(Settings):
 
         self.weapon_group = pygame.sprite.Group()
         self.enemy_group = pygame.sprite.Group()
+        self.enemy_weapon_group = pygame.sprite.Group()
 
         self.weapon_list = ['projectile', 'rocket']
-        self.running = True
+        self.running = False
 
         self.player_level_increase = self.player.level_increase
 
@@ -52,7 +66,7 @@ class MainLogic(Settings):
         self.player_current_speed = 0
         self.enemy_current_speed = 0
         self.statement = {self.pause: False}
-        # self.ticks = pygame.time.get_ticks()
+        self.start_pause_text = ["Розпочніть", "Продовжити"]
 
         self.smoke = pygame.transform.scale(pygame.image.load('images/smoke.png').convert_alpha(),
                                             (30, 30))
@@ -61,38 +75,71 @@ class MainLogic(Settings):
         while self.running:
             self._update_screen()
             self.fps.tick(60)
-            self._check_events()
-            self.hit()
+            await self._check_events()
+            await self.hit()
+            await self.enemy_fire()
             self.player_moving_events()
-            await asyncio.sleep(0)
 
-    def _check_events(self):
+    async def pause_func(self):
+        print("game at pause")
+        self.statement[self.pause] = True
+        self.player_current_speed = self.player.player_speed
+        self.enemy_current_speed = self.enemy_speed
+        self.player.player_speed = 0
+        self.enemy_speed = 0
+        await self.start_screen()
+        return
+
+    async def dead_func(self):
+        print("Player was killed")
+        with open("record.txt", "r") as file:
+            record = file.readlines()
+
+            if int(record[0]) < self.player.score:
+                with open("record.txt", "w"):
+                    file.write(str(self.player.score))
+
+        # self.statement[self.pause] = True
+        self.player_current_speed = 1
+        self.enemy_current_speed = 1
+        self.player.player_speed = 1
+        self.enemy_speed = 1
+        self.weapon_group.empty()
+        self.enemy_group.empty()
+        self.bonus_group.empty()
+        self.enemy_weapon_group.empty()
+        self.enemy_current_health = 100
+        self.player.player_current_health = 100
+        self.player.score = 0
+        self.player.level = 0
+        self.player.level_increase = 5
+        await self.pause_func()
+        await self.start_screen()
+
+    async def _check_events(self):
         self.keys = pygame.key.get_pressed()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
-            if event.type == pygame.KEYDOWN and event.key == K_p:
-                print("game at pause")
-                self.statement[self.pause] = True
-                self.player_current_speed = self.player.player_speed
-                self.enemy_current_speed = self.enemy_speed
-                self.player.player_speed = 0
-                self.enemy_speed = 0
-                for enemy in self.enemy_group:
-                    enemy.kill()
-                for bonus in self.bonus_group:
-                    bonus.kill()
-            if self.statement[self.pause] and event.type == pygame.KEYDOWN and event.key == K_o:
-                print("game run")
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                await self.pause_func()
 
-                self.statement[self.pause] = False
-                self.player.player_speed = self.player_current_speed
-                self.enemy_speed = self.enemy_current_speed
+            # else:
+            if 550 < self.mouse_pos[0] < 750 and 270 < self.mouse_pos[1] < 320:
+                self.button_color = self.green
+                if self.statement[self.pause] and pygame.mouse.get_pressed(3)[0]:
+                    self.statement[self.pause] = False
+                    self.running = True
+                    print("game run")
+                    self.player.player_speed = self.player_current_speed
+                    self.enemy_speed = self.enemy_current_speed
+            else:
+                self.button_color = self.gray
 
-            self.create_enemy(event)
-            self.create_bonus(event)
-            self.fire(event)
-
+            if self.running:
+                self.create_enemy(event)
+                self.create_bonus(event)
+                self.fire(event)
 
     def create_enemy(self, event):
         if self.statement[self.pause]:
@@ -101,6 +148,12 @@ class MainLogic(Settings):
             if event.type == self.create_enemy_event:
                 enemy = Enemy(self.screen, self.enemy_speed, self.enemy_current_health, self.enemy_max_health)
                 self.enemy_group.add(enemy)
+                for enemy in self.enemy_group:
+                    # enemy.fire()
+                    if random.randint(1, 10) == random.randint(6, 10):
+
+                        self.enemy_weapon_group.add(enemy.fire())
+                        print(enemy, "fire")
         
     def create_bonus(self, event):
         if self.statement[self.pause]:
@@ -125,7 +178,6 @@ class MainLogic(Settings):
             else:
                 print('out of rockets')
         if event.type == pygame.KEYDOWN and event.key == K_q:
-            # print(pygame.MOUSEBUTTONDOWN)
             if self.player.bullet_amount > 0:
                 self.player.bullet_amount -= 1
                 self.weapon_group.add(self.player.fire())
@@ -151,7 +203,20 @@ class MainLogic(Settings):
         if self.keys[K_d] and self.player.rect.right < self.screen.get_width():
             self.player.move(right=True)
 
-    def hit(self):
+    async def enemy_fire(self):
+        for projectile in self.enemy_weapon_group:
+            if self.player.rect.colliderect(projectile):
+                print("enemy hits player")
+                self.player.player_current_health -= 20
+                projectile.kill()
+                if self.player.player_current_health <= 0:
+                    await self.dead_func()
+                    self.running = False
+                    return True
+
+                    # quit()
+
+    async def hit(self):
         for enemy in self.enemy_group:
             if enemy.rect.right < 0:
                 enemy.kill()
@@ -159,14 +224,15 @@ class MainLogic(Settings):
                 self.player.score -= 1
                 if self.player.score <= -1:
                     self.running = False
-                    quit()
+                    await self.dead_func()
             if self.player.rect.colliderect(enemy.rect):
                 # self.player.score -= 2
                 enemy.dead()
                 self.player.get_damage(40)
                 if self.player.player_current_health <= 0:
                     self.running = False
-                    quit()
+                    await self.dead_func()
+
             for bullet in self.weapon_group:
                 if bullet.rect.colliderect(enemy.rect):
                     enemy.hit = True
@@ -174,7 +240,7 @@ class MainLogic(Settings):
                         enemy.get_damage(self.player.projectile_damage)
                         enemy.basic_health(enemy.enemy_current_health)
                         if enemy.enemy_current_health == 0:
-                            self.player.score += 1
+                            self.player.score += 5
                             enemy.dead()
                             # self.player.projectile_amount += 2
                     elif bullet.get_type() == 'rocket':
@@ -182,7 +248,7 @@ class MainLogic(Settings):
                         enemy.basic_health(enemy.enemy_current_health)
 
                         if enemy.enemy_current_health == 0:
-                            self.player.score += 1
+                            self.player.score += 2
                             enemy.dead()
                             # self.player.rocket_amount += 1
                     else:
@@ -197,7 +263,7 @@ class MainLogic(Settings):
                     bullet.kill()
 
     def get_bonus(self):
-        random_bonus_number = random.randint(0, 3)
+        random_bonus_number = random.randint(0, 4)
         for bonus in self.bonus_group:
             if self.player.rect.colliderect(bonus.rect):
                 if random_bonus_number == 0:
@@ -208,23 +274,30 @@ class MainLogic(Settings):
                     self.player.projectile_amount += random.randint(15, 25)
                 elif random_bonus_number == 3:
                     self.player.bullet_amount += random.randint(100, 170)
+                elif random_bonus_number == 4:
+                    self.player.score += 10
                 bonus.kill()
 
     def power_up(self):
-        if self.player.score == self.player.level_increase:
+        if self.player.score >= self.player.level_increase:
             self.player.score += 1
             self.player.level_increase += int((self.player.score//2) * 3)
             self.player.player_power_up()
             self.enemy_power_up()
+            self.event_increase += 1
+            print("Level UP")
 
     def enemy_power_up(self):
         # self.level += 1
-        if self.enemy_speed <= 8:
-            if self.random_resp_number_start <= 1400 and self.random_resp_number_end <= 1500:
-                self.random_resp_number_start += 100
-                self.random_resp_number_end -= 100
+        if self.random_resp_number_start > 0 and self.random_resp_number_end > 0:
+            if self.random_resp_number_start > 0 or self.random_resp_number_end > 0:
+                self.random_resp_number_start -= 200
+                self.random_resp_number_end -= 200
+                print(self.random_resp_number_start, self.random_resp_number_end)
+
         self.enemy_speed += 0.7
         self.enemy_current_health += 20
+        print("enemy level UP")
 
     def game_hud(self, text=None, x=None, y=None):
         return self.screen.blit(self.font.render(str(text), True, 'black'), (x, y))
@@ -300,6 +373,9 @@ class MainLogic(Settings):
         self.enemy_group.draw(self.screen)
         self.enemy_group.update()
 
+        self.enemy_weapon_group.draw(self.screen)
+        self.enemy_weapon_group.update()
+
         self.weapon_group.draw(self.screen)
         self.weapon_group.update()
 
@@ -314,7 +390,7 @@ class MainLogic(Settings):
         # self.game_hud(f'weapon speed {int(self.player.bullet_speed)}\n'
         #               f'{self.player.rocket_speed}\n'
         #               f'{self.player.projectile_speed}', 10, 80)
-        self.game_hud(f'Наступний рівень після {self.player.level_increase}рахунку', (self.screen.get_width() / 2) - 70, 45)
+        self.game_hud(f'Наступний рівень після {self.player.level_increase} рахунку', (self.screen.get_width() / 2) - 70, 45)
         self.game_hud(f'Здоров"я {self.player.player_current_health}', (self.screen.get_width() / 2) - 50, 3)
         if self.fire_event:
             self.fire_animate()
@@ -322,7 +398,47 @@ class MainLogic(Settings):
         self.power_up()
         pygame.display.update()
 
+    async def start_screen(self):
+        print("start game screen")
+        while True:
+            await self._update_menu()
+            await asyncio.sleep(0)
+            await self._check_events()
+
+    async def _update_menu(self):
+        self.mouse_pos = pygame.mouse.get_pos()
+        color = (254, 246, 178, 0)
+        self.screen.fill(color=color)
+        self.fps.tick(60)
+        pygame.draw.rect(self.screen, color=self.gray, rect=self.menu_rect)
+        pygame.draw.rect(self.screen, color=self.button_color, rect=self.button_rect, border_radius=32)
+        with open("record.txt", "r") as file:
+            record = file.readlines()
+
+        if self.statement[self.pause]:
+            self.game_hud(f'{self.start_pause_text[1]} гру, натисніть продовжити', (self.menu_rect[0] + 35),
+                          (self.menu_rect[1] + 75))
+            self.game_hud("Продовжити", (self.button_rect[0] + 38), (self.button_rect[1] + 12))
+            self.game_hud(f"Рекорд {record[0]}", x=self.menu_rect[0] + 35, y=120)
+
+        elif not self.statement[self.pause]:
+            self.game_hud(f'{self.start_pause_text[0]} гру, натисніть старт', (self.menu_rect[0] + 75),
+                          (self.menu_rect[1] + 75))
+            self.game_hud("СТАРТ", (self.button_rect[0] + 68), (self.button_rect[1] + 12))
+            self.game_hud(f"Рекорд {record[0]}", x=(self.menu_rect[0] + 75), y=120)
+
+        if 550 < self.mouse_pos[0] < 750 and 270 < self.mouse_pos[1] < 320:
+            self.button_color = self.green
+            if pygame.mouse.get_pressed(3)[0]:
+                await start_game()
+                self.running = True
+        else:
+            self.button_color = self.gray
+        pygame.display.update()
+
 
 if __name__ == '__main__':
+    # banderivets = MainLogic()
+    # asyncio.run(banderivets.main())
     banderivets = MainLogic()
-    asyncio.run(banderivets.main())
+    asyncio.run(banderivets.start_screen())

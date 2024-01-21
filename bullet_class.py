@@ -21,6 +21,12 @@ class Weapon(pygame.sprite.Sprite, Settings):
                                                 ('images/rocket.png').convert_alpha(), (45, 21))
             self.image_size = self.image.get_size()
             self.rect = self.image.get_rect(center=(pos_x, pos_y))
+        elif ammo_type == 'enemy_projectile':
+            self.image = pygame.transform.scale(pygame.image.load
+                                                ('images/snarad.png').convert_alpha(), (30, 20))
+            self.image = pygame.transform.rotate(self.image, 180)
+            self.image_size = self.image.get_size()
+            self.rect = self.image.get_rect(center=(pos_x, pos_y))
         else:
             self.image = pygame.transform.scale(pygame.image.load
                                                 ('images/snarad.png').convert_alpha(), (15, 5))
@@ -45,10 +51,19 @@ class Weapon(pygame.sprite.Sprite, Settings):
                 self.rocket_fire = True
                 self.rect.centerx += self.rocket_speed
                 self.rect.centery += 5
+        elif bullet_type == 'enemy_projectile':
+            self.rect.x -= self.projectile_speed
+            if self.rect.x < 0:
+                self.kill()
         else:
             self.rect.x += self.bullet_speed
             if self.rect.x > self.screen_width + 10:
                 self.kill()
+
+    def enemy_bullet(self):
+        self.rect.x -= self.projectile_speed
+        if self.rect.x < 0:
+            self.kill()
 
     def power_up(self):
         self.bullet_speed += 2
