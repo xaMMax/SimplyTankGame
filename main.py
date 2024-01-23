@@ -228,7 +228,7 @@ class MainLogic(Settings):
             if self.player.rect.colliderect(enemy.rect):
                 # self.player.score -= 2
                 enemy.dead()
-                self.player.get_damage(40)
+                self.player.get_damage(20)
                 if self.player.player_current_health <= 0:
                     self.running = False
                     await self.dead_func()
@@ -241,6 +241,7 @@ class MainLogic(Settings):
                         enemy.basic_health(enemy.enemy_current_health)
                         if enemy.enemy_current_health == 0:
                             self.player.score += 5
+                            self.player.player_current_health += 5
                             enemy.dead()
                             # self.player.projectile_amount += 2
                     elif bullet.get_type() == 'rocket':
@@ -249,6 +250,7 @@ class MainLogic(Settings):
 
                         if enemy.enemy_current_health == 0:
                             self.player.score += 2
+                            self.player.player_current_health += 5
                             enemy.dead()
                             # self.player.rocket_amount += 1
                     else:
@@ -258,6 +260,7 @@ class MainLogic(Settings):
                         if enemy.enemy_current_health == 0:
                             self.player.score += 1
                             self.player.projectile_amount += 2
+                            self.player.player_current_health += 10
                             enemy.dead()
                             # self.player.bullet_amount += 1
                     bullet.kill()
