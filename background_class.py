@@ -18,7 +18,7 @@ class Background:
         self.bg_cloud_far = pygame.image.load('images/clouds_far.png').convert_alpha()
         self.bg_sun = pygame.image.load('images/sun.png').convert_alpha()
 
-        self.fire_fire = pygame.transform.scale(pygame.image.load('images/fire_fire.png').convert_alpha(),
+        self.fire_fire = pygame.transform.scale(pygame.image.load('images/fire_fire.png'),
                                                 (200, 100))
         self.fire_fire1 = pygame.transform.scale(pygame.image.load('images/fire_fire.png').convert_alpha(),
                                                 (150, 70))

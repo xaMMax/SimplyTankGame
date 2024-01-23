@@ -1,5 +1,7 @@
 import pygame
 import random
+
+from bullet_class import Weapon
 from settins import Settings
 
 
@@ -9,8 +11,8 @@ class Enemy(pygame.sprite.Sprite, Settings):
         Settings.__init__(self, font_size=15)
 
         self.screen = screen
-        self.current_sprite = 0
 
+        self.current_sprite = 0
         self.image_sprite_list = []
         self.image_sprite_list.append(pygame.image.load('enemy_tank/enemytank1.png'))
         self.image_sprite_list.append(pygame.image.load('enemy_tank/enemytank2.png'))
@@ -25,10 +27,13 @@ class Enemy(pygame.sprite.Sprite, Settings):
         self.image_sprite_list.append(pygame.image.load('enemy_tank/enemytank11.png'))
         self.image_sprite_list.append(pygame.image.load('enemy_tank/enemytank12.png'))
 
-        self.image = (self.image_sprite_list[self.current_sprite]).convert_alpha()
-        self.boom = pygame.transform.scale(pygame.image.load('images/boom.png').convert_alpha(), (100, 100))
+        self.image = pygame.transform.scale((self.image_sprite_list[self.current_sprite]).convert_alpha(),
+                                            (int(self.screen_width/10), int(self.screen_width/10)))
+        self.boom = pygame.transform.scale(pygame.image.load('images/boom.png').convert_alpha(),
+                                           (int(self.screen_width/10), int(self.screen_width/10)))
         self.enemy_size = self.image.get_size()
-        self.rect = pygame.Rect(self.screen_width + 100, random.randint(400, 700), *self.enemy_size)
+        self.rect = pygame.Rect(self.screen_width + int(self.screen_width/10),
+                                random.randint(int(self.screen_height/2), int(self.screen_height-50)), *self.enemy_size)
         self.health_line_length = 0.5
         self.hit = False
         self.kill_self = False
@@ -38,6 +43,8 @@ class Enemy(pygame.sprite.Sprite, Settings):
         self.enemy_current_health = current_health
         self.enemy_max_health = max_health
 
+        self.weapon = Weapon
+
     def update(self):
         self.picture_change()
 
@@ -46,9 +53,7 @@ class Enemy(pygame.sprite.Sprite, Settings):
             # self.hit = False
         self.rect.x -= self.enemy_speed
         self.basic_health(health_ratio=self.enemy_current_health)
-        self.hud(f' health {self.enemy_current_health}'
-                 f' speed {self.enemy_speed}',
-                 self.rect.x, self.rect.y - 45)
+        self.hud(f' здоров"я {self.enemy_current_health}', self.rect.x, self.rect.y - 45)
         self.hit = False
 
         return
@@ -69,7 +74,7 @@ class Enemy(pygame.sprite.Sprite, Settings):
 
     def basic_health(self, health_ratio):
         return pygame.draw.rect(self.screen, 'red',
-                                (self.rect.x + 30, self.rect.y - 15, health_ratio, 5))
+                                (self.rect.x + 30, self.rect.y - 15, health_ratio, 5), border_radius=16)
 
     def hit_reaction(self):
         return self.screen.blit(self.boom, (self.rect.x - 30, self.rect.y - 50))
@@ -82,6 +87,11 @@ class Enemy(pygame.sprite.Sprite, Settings):
             self.current_sprite = 0
         self.image = (self.image_sprite_list[self.current_sprite]).convert_alpha()
         self.current_sprite += 1
+
+    def fire(self):
+        text = "enemy_projectile"
+        return self.weapon(self.rect.left - (self.enemy_size[0] / 2), self.rect.top + self.enemy_size[0] / 10,
+                               self.rect.center, text, (self.enemy_speed + 2))
 
     def dead(self):
         self.kill()
